@@ -4,3 +4,6 @@
 ## Getting Started
 
 ### Prerequisties
+- Spring Boot 2.6.6
+- Java 11
+- Gradle Project
