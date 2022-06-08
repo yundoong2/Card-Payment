@@ -11,6 +11,6 @@ import java.util.Optional;
 public class paymentCancelRequestDTO {
 
     private String id;
-    private int cancelPrice;
-    private Optional<Integer> vat;
+    private Long cancelPrice;
+    private Optional<Long> vat;
 }

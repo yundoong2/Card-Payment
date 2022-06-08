@@ -43,9 +43,9 @@ class paymentServiceImplTest {
         paymentRequestDTO requestDTO = new paymentRequestDTO();
         requestDTO.setCardNumber("1111222233334444");
         requestDTO.setValidity("1024");
-        requestDTO.setCvc(333);
-        requestDTO.setInstallmentMonth(0);
-        requestDTO.setPrice(100000);
+        requestDTO.setCvc(333L);
+        requestDTO.setInstallmentMonth(0L);
+        requestDTO.setPrice(100000L);
 
         //when
         paymentResponseDTO dto = paymentService.doPayment(requestDTO);

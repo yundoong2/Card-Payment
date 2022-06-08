@@ -1,27 +1,24 @@
 package myproject.cardpayment.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import myproject.cardpayment.entity.balanceEntity;
 import myproject.cardpayment.entity.paymentEntity;
-import myproject.cardpayment.util.UUIDGenerator;
 
 @Data
-@NoArgsConstructor
-@Builder
 public class paymentDTO {
     private String id;
     private String payOrCancel;
-    private int price;
-    private int vat;
-    private int installmentMonth;
+    private Long price;
+    private Long vat;
+    private Long installmentMonth;
     private String originId;
     private String encryptedCardInfo;
     private String resultString;
+    private balanceEntity balanceEntity;
 
+    /*결제*/
     public paymentDTO(paymentRequestDTO requestDTO, String id, String payOrCancel, String encryptedCardInfo
-            , String resultString) {
+            , String resultString, balanceEntity balanceEntity) {
         this.id = id;
         this.payOrCancel = payOrCancel;
         this.price = requestDTO.getPrice();
@@ -30,9 +27,12 @@ public class paymentDTO {
         this.originId = "";
         this.encryptedCardInfo = encryptedCardInfo;
         this.resultString = resultString;
+        this.balanceEntity = balanceEntity;
     }
-
-    public paymentDTO(String id, String payOrCancel, int price, int vat, int installmentMonth, String originId, String encryptedCardInfo, String resultString) {
+    
+    /*결제 취소*/
+    public paymentDTO(String id, String payOrCancel, Long price, Long vat, Long installmentMonth, String originId, String encryptedCardInfo
+            , String resultString, balanceEntity balanceEntity) {
         this.id = id;
         this.payOrCancel = payOrCancel;
         this.price = price;
@@ -41,7 +41,9 @@ public class paymentDTO {
         this.originId = originId;
         this.encryptedCardInfo = encryptedCardInfo;
         this.resultString = resultString;
+        this.balanceEntity = balanceEntity;
     }
+    
 
     public paymentEntity toEntity() {
         paymentEntity entity = paymentEntity.builder()

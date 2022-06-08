@@ -18,10 +18,10 @@ public class paymentRequestDTO {
     @NotBlank @Size(min = 4, max = 4)
     private String validity;
     @NotBlank @Size(min = 3, max = 3)
-    private int cvc;
+    private Long cvc;
     @NotBlank @Min(value = 0) @Max(value = 12)
-    private int installmentMonth;
+    private Long installmentMonth;
     @NotBlank @Min(value = 100) @Max(value = 1000000000)
-    private int price;
-    private Optional<Integer> vat;
+    private Long price;
+    private Optional<Long> vat;
 }
