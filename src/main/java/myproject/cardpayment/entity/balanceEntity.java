@@ -1,20 +1,19 @@
 package myproject.cardpayment.entity;
 
 import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 @Builder
-@Getter
+//@Getter
+@Data
+@Table(name = "balance")
 public class balanceEntity {
     @Id
     @GeneratedValue
-    @Column(name = "balance_id")
     private Long id;
     private Long remainPrice;
     private Long remainVat;

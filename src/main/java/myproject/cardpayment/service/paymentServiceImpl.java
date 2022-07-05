@@ -1,5 +1,6 @@
 package myproject.cardpayment.service;
 
+import lombok.RequiredArgsConstructor;
 import myproject.cardpayment.dto.*;
 import myproject.cardpayment.encryption.AES256Util;
 import myproject.cardpayment.entity.balanceEntity;
@@ -19,18 +20,20 @@ import java.util.Optional;
 import java.util.StringJoiner;
 
 @Service
+@RequiredArgsConstructor
 @Transactional
 public class paymentServiceImpl implements paymentService{
 
     public static final double VAT_RATE = 11D;
-    @Autowired
+
+//    @Autowired
     private final paymentRepository paymentRepository;
     private final balanceRepository balanceRepository;
 
-    public paymentServiceImpl(paymentRepository paymentRepository, balanceRepository balanceRepository) {
-        this.paymentRepository = paymentRepository;
-        this.balanceRepository = balanceRepository;
-    }
+//    public paymentServiceImpl(paymentRepository paymentRepository, balanceRepository balanceRepository) {
+//        this.paymentRepository = paymentRepository;
+//        this.balanceRepository = balanceRepository;
+//    }
 
     @Override
     public paymentResponseDTO doPayment(paymentRequestDTO requestDTO) throws UnsupportedEncodingException, GeneralSecurityException {
@@ -73,12 +76,26 @@ public class paymentServiceImpl implements paymentService{
         builder.append(padStringSpaces("", -47));
         String stringData = String.valueOf(builder);
 
-        balanceDTO balDTO = new balanceDTO(requestDTO.getPrice(), requestDTO.getVat().get());
+        balanceDTO balDTO = balanceDTO.builder()
+                .remainPrice(requestDTO.getPrice())
+                .remainVat(requestDTO.getVat().get())
+                .build();
 
         balanceEntity balanceEntity = balDTO.toEntity();
         balanceRepository.save(balanceEntity);
 
-        paymentDTO dto = new paymentDTO(requestDTO, id, payOrCancel, encrypted, stringData, balanceEntity);
+        paymentDTO dto = paymentDTO.builder()
+                .id(id)
+                .payOrCancel(payOrCancel)
+                .price(requestDTO.getPrice())
+                .vat(requestDTO.getVat().get())
+                .installmentMonth(requestDTO.getInstallmentMonth())
+                .originId("")
+                .encryptedCardInfo(encrypted)
+                .resultString(stringData)
+                .balanceEntity(balanceEntity)
+                .build();
+
         paymentEntity paymentEntity = dto.toEntity();
 
         return new paymentResponseDTO(paymentRepository.save(paymentEntity));
@@ -141,15 +158,29 @@ public class paymentServiceImpl implements paymentService{
         String stringData = String.valueOf(builder);
 
         balanceEntity balanceEntity = paymentEntity.getBalance();
-        balanceDTO balanceDTO = new balanceDTO(balanceEntity.getRemainPrice() - cancelRequestDTO.getCancelPrice()
-                , balanceEntity.getRemainVat() - cancelRequestDTO.getVat().get());
-        balanceEntity = balanceDTO.toEntity();
+
+        balanceDTO balDTO = balanceDTO.builder()
+                .remainPrice(balanceEntity.getRemainPrice() - cancelRequestDTO.getCancelPrice())
+                .remainVat(balanceEntity.getRemainVat() - cancelRequestDTO.getVat().get())
+                .build();
+
+        balanceEntity = balDTO.toEntity();
 
         balanceRepository.save(balanceEntity);
 
-        paymentDTO paymentDTO = new paymentDTO(id, payOrCancel, cancelRequestDTO.getCancelPrice(), cancelRequestDTO.getVat().get()
-                , paymentEntity.getInstallmentMonth(), originId, paymentEntity.getEncryptedCardInfo(), stringData, balanceEntity);
-        paymentEntity = paymentDTO.toEntity();
+        paymentDTO payDTO = paymentDTO.builder()
+                .id(id)
+                .payOrCancel(payOrCancel)
+                .price(cancelRequestDTO.getCancelPrice())
+                .vat(cancelRequestDTO.getVat().get())
+                .installmentMonth(paymentEntity.getInstallmentMonth())
+                .originId(originId)
+                .encryptedCardInfo(paymentEntity.getEncryptedCardInfo())
+                .resultString(stringData)
+                .balanceEntity(balanceEntity)
+                .build();
+
+        paymentEntity = payDTO.toEntity();
 
         return new paymentResponseDTO(paymentRepository.save(paymentEntity));
     }

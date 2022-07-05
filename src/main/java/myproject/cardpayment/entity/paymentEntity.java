@@ -5,11 +5,13 @@ import lombok.*;
 import javax.persistence.*;
 
 @Entity
-@Getter
+//@Getter
+//@Setter
 @Builder
+@Data
 @Table(name = "payment")
-@NoArgsConstructor
-@AllArgsConstructor
+//@NoArgsConstructor
+//@AllArgsConstructor
 public class paymentEntity {
     @Id
     private String id;

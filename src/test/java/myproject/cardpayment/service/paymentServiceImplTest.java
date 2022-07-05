@@ -1,35 +1,18 @@
 package myproject.cardpayment.service;
 
-import myproject.cardpayment.dto.paymentDTO;
-import myproject.cardpayment.dto.paymentRequestDTO;
-import myproject.cardpayment.dto.paymentResponseDTO;
-import myproject.cardpayment.encryption.AES256Util;
-import myproject.cardpayment.entity.paymentEntity;
-import myproject.cardpayment.exception.CustomException;
-import myproject.cardpayment.exception.ErrorCode;
+import myproject.cardpayment.dto.*;
 import myproject.cardpayment.repository.paymentRepository;
-import myproject.cardpayment.util.UUIDGenerator;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.util.Optional;
-import java.util.StringJoiner;
-
 import static org.junit.jupiter.api.Assertions.*;
-
+import static myproject.cardpayment.common.Constants.*;
 
 @SpringBootTest
-@Transactional
+//@Transactional
 class paymentServiceImplTest {
     @Autowired
     paymentRepository repository;
@@ -41,11 +24,11 @@ class paymentServiceImplTest {
     void 결제() throws UnsupportedEncodingException, GeneralSecurityException {
         //given
         paymentRequestDTO requestDTO = new paymentRequestDTO();
-        requestDTO.setCardNumber("1111222233334444");
-        requestDTO.setValidity("1024");
-        requestDTO.setCvc(333L);
-        requestDTO.setInstallmentMonth(0L);
-        requestDTO.setPrice(100000L);
+        requestDTO.setCardNumber(CARD_NUMBER);
+        requestDTO.setValidity(VALIDITY);
+        requestDTO.setCvc(CVC);
+        requestDTO.setInstallmentMonth(INSTALLMENT_MONTH);
+        requestDTO.setPrice(PRICE);
 
         //when
         paymentResponseDTO dto = paymentService.doPayment(requestDTO);
@@ -55,6 +38,33 @@ class paymentServiceImplTest {
         paymentResponseDTO responseDTO = new paymentResponseDTO(repository.findById(dto.getId()).get());
         assertEquals(responseDTO.getId(), dto.getId());
         assertEquals(responseDTO.getResultString(), dto.getResultString());
+    }
+
+    @Test
+    void 결제취소() throws GeneralSecurityException, UnsupportedEncodingException {
+        //given
+        paymentRequestDTO requestDTO = new paymentRequestDTO();
+        requestDTO.setCardNumber(CARD_NUMBER);
+        requestDTO.setValidity(VALIDITY);
+        requestDTO.setCvc(CVC);
+        requestDTO.setInstallmentMonth(INSTALLMENT_MONTH);
+        requestDTO.setPrice(PRICE);
+        requestDTO.setVat(VAT);
+
+        //when
+        paymentResponseDTO dto = paymentService.doPayment(requestDTO);
+        System.out.println("dto : " + dto.getId());
+
+        paymentCancelRequestDTO cancelDTO = new paymentCancelRequestDTO(dto.getId(), 1100L, Optional.of(100L));
+
+        dto = paymentService.cancelPayment(cancelDTO);
+
+        //then
+        paymentLookupDTO responseDTO = paymentService.getPayment(dto.getId());
+
+        assertEquals(responseDTO.getId(), dto.getId());
+        assertEquals(responseDTO.getRemainPrice(), 9900L);
+        assertEquals(responseDTO.getRemainVat(), 900L);
     }
 
 

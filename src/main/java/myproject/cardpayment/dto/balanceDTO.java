@@ -4,15 +4,12 @@ import lombok.*;
 import myproject.cardpayment.entity.balanceEntity;
 import myproject.cardpayment.entity.paymentEntity;
 
-@Data
+@Builder
+@Getter
+@Setter
 public class balanceDTO {
     private Long remainPrice;
     private Long remainVat;
-
-    public balanceDTO(Long remainPrice, Long remainVat) {
-        this.remainPrice = remainPrice;
-        this.remainVat = remainVat;
-    }
 
     public balanceEntity toEntity() {
         balanceEntity entity = balanceEntity.builder()
